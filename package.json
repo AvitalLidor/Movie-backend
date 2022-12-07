@@ -1,0 +1,21 @@
+{
+  "name": "backend_api",
+  "version": "1.0.0",
+  "description": "Movie Project",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon app.js"
+  },
+  "author": "Full stack Lidor",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.0",
+    "express": "^4.18.2",
+    "express-validator": "^6.14.2",
+    "mongoose": "^6.7.2",
+    "nodemailer": "^6.8.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
+}
