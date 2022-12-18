@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const genres = require("../utils/genres");
+const Movie = require("../models/movie");
 
 const movieSchema = mongoose.Schema(
   {
@@ -56,6 +57,7 @@ const movieSchema = mongoose.Schema(
       type: Object,
       url: { type: String, required: true },
       public_id: { type: String, required: true },
+      responsive: [URL],
       required: true,
     },
     trailer: {
