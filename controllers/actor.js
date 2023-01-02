@@ -20,7 +20,7 @@ exports.createActor = async (req, res) => {
   }
   await newActor.save();
 
-  res.status(201).json(formatActor(newActor));
+  res.status(201).json({ actor: formatActor(newActor) });
 };
 
 exports.updateActor = async (req, res) => {
@@ -89,14 +89,14 @@ exports.searchActor = async (req, res) => {
 
   const actors = result.map((actor) => formatActor(actor));
 
-  res.json(actors);
+  res.json({ results: actors });
 };
 
 exports.getLatestActors = async (req, res) => {
   const result = await Actor.find().sort({ createdAt: "-1" }).limit(12);
   const actors = result.map((actor) => formatActor(actor));
 
-  res.json(actors);
+  res.json({ results: actors });
 };
 exports.getSingleActor = async (req, res) => {
   const { id } = req.params;
