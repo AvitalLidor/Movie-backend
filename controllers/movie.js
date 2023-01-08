@@ -2,6 +2,7 @@ const { sendError } = require("../utils/helper");
 const cloudinary = require("../cloud");
 const Movie = require("../models/movie");
 const { isValidObjectId } = require("mongoose");
+const movie = require("../models/movie");
 
 exports.uploadTrailer = async (req, res) => {
   const { file } = req;
@@ -282,4 +283,22 @@ exports.removeMovie = async (req, res) => {
   await Movie.findByIdAndDelete(movieId);
 
   res.json({ message: "Movie removed successfully." });
+};
+
+exports.getMovies = async (req, res) => {
+  const { pageNo = 0, limit = 10 } = req.query;
+  const movies = await Movie.find({})
+    .sort({ createdAt: -1 })
+    .skip(parseInt(pageNo) * parseInt(limit))
+    .limit(parseInt(limit));
+
+  const results = movies.map((movie) => ({
+    id: movie._id,
+    title: movie.title,
+    poster: movie.poster?.url,
+    genres: movie.genres,
+    status: movie.status,
+  }));
+
+  res.json({ movies: results });
 };
