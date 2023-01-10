@@ -2,7 +2,7 @@ const movieInfo = {
   title: "some title",
   storyLine: "little bit about the movie",
   director: "123456",
-  releseDate: "07-07-2022",
+  releaseDate: "07-07-2022",
   status: "private",
   type: "Movie",
   genres: ["Sci-fi", "Action"],
