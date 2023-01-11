@@ -133,6 +133,7 @@ exports.updateMovieWithoutPoster = async (req, res) => {
   movie.status = status;
   movie.type = type;
   movie.genres = genres;
+  movie.trailer = trailer;
   movie.cast = cast;
   movie.language = language;
 
@@ -191,7 +192,7 @@ exports.updateMovie = async (req, res) => {
   movie.type = type;
   movie.genres = genres;
   movie.cast = cast;
-  movie.trailer = trailer;
+  // movie.trailer = trailer;
   movie.language = language;
 
   if (director) {
@@ -346,5 +347,24 @@ exports.getMoviesForUpdate = async (req, res) => {
         };
       }),
     },
+  });
+};
+
+exports.searchMovies = async (req, res) => {
+  const { title } = req.query;
+
+  if (!title.trim()) return sendError(res, "Invalid request");
+
+  const movies = await Movie.find({ title: { $regex: title, $options: "i" } });
+  res.json({
+    results: movies.map((m) => {
+      return {
+        id: m._id,
+        title: m.title,
+        poster: m.poster?.url,
+        genres: m.genres,
+        status: m.status,
+      };
+    }),
   });
 };

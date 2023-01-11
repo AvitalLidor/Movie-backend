@@ -51,7 +51,7 @@ exports.validateMovie = [
     .isEmpty()
     .withMessage("Storyline is important!"),
   check("language").trim().not().isEmpty().withMessage("Language is missing!"),
-  check("releaseDate").isDate().withMessage("release date is missing!"),
+  check("releaseDate").isDate().withMessage("Release date is missing!"),
   check("status")
     .isIn(["public", "private"])
     .withMessage("Movie status must be public or private!"),
