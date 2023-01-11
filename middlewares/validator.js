@@ -101,7 +101,7 @@ exports.validateMovie = [
   // }),
 ];
 
-(exports.validateTrailer = check("trailer")
+exports.validateTrailer = check("trailer")
   .isObject()
   .withMessage("trailer must be an object with url and public_id")
   .custom(({ url, public_id }) => {
@@ -119,12 +119,13 @@ exports.validateMovie = [
     } catch (error) {
       throw Error("Trailer url is invalid!");
     }
-  })),
-  (exports.validate = (req, res, next) => {
-    const error = validationResult(req).array();
-    if (error.length) {
-      return res.json({ error: error[0].msg });
-    }
-
-    next();
   });
+
+exports.validate = (req, res, next) => {
+  const error = validationResult(req).array();
+  if (error.length) {
+    return res.json({ error: error[0].msg });
+  }
+
+  next();
+};
