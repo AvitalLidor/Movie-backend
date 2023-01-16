@@ -9,6 +9,7 @@ const cors = require("cors");
 const userRouter = require("./routes/user");
 const actorRouter = require("./routes/actor");
 const movieRouter = require("./routes/movie");
+const reviewRouter = require("./routes/review");
 const { handleNotFound } = require("./utils/helper");
 
 const app = express();
@@ -18,6 +19,7 @@ app.use(morgan("dev"));
 app.use("/api/user", userRouter);
 app.use("/api/actor", actorRouter);
 app.use("/api/movie", movieRouter);
+app.use("/api/review", reviewRouter);
 
 app.use("/*", handleNotFound);
 
