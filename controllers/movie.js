@@ -2,11 +2,15 @@ const {
   sendError,
   formatActor,
   averageRatingPipeline,
+  relatedMovieAggregation,
+  getAverageRatings,
+  topRatedMoviesPipeline,
 } = require("../utils/helper");
 const cloudinary = require("../cloud");
 const Movie = require("../models/movie");
 const Review = require("../models/reviews");
 const { isValidObjectId, default: mongoose } = require("mongoose");
+const reviews = require("../models/reviews");
 
 exports.uploadTrailer = async (req, res) => {
   const { file } = req;
@@ -394,15 +398,28 @@ exports.getLatestUploads = async (req, res) => {
 exports.getSingleMovie = async (req, res) => {
   const { movieId } = req.params;
 
-  if (!isValidObjectId(movieId)) return sendError(res, "Movie id is not valid");
+  // mongoose.Types.ObjectId(movieId)
+
+  if (!isValidObjectId(movieId))
+    return sendError(res, "Movie id is not valid!");
 
   const movie = await Movie.findById(movieId).populate(
     "director writers cast.actor"
   );
 
-  const reviews = await Review.aggregate(averageRatingPipeline(movie._id));
+  // const [aggregatedResponse] = await Review.aggregate(
+  //   averageRatingPipeline(movie._id)
+  // );
 
-  console.log(reviews);
+  // const reviews = {};
+
+  // if (aggregatedResponse) {
+  //   const { ratingAvg, reviewCount } = aggregatedResponse;
+  //   reviews.ratingAvg = parseFloat(ratingAvg).toFixed(1);
+  //   reviews.reviewCount = reviewCount;
+  // }
+
+  const reviews = await getAverageRatings(movie._id);
 
   const {
     _id: id,
@@ -411,7 +428,7 @@ exports.getSingleMovie = async (req, res) => {
     cast,
     writers,
     director,
-    releaseDate,
+    releseDate,
     genres,
     tags,
     language,
@@ -425,7 +442,7 @@ exports.getSingleMovie = async (req, res) => {
       id,
       title,
       storyLine,
-      releaseDate,
+      releseDate,
       genres,
       tags,
       language,
@@ -450,6 +467,55 @@ exports.getSingleMovie = async (req, res) => {
         id: director._id,
         name: director.name,
       },
+      reviews: { ...reviews },
     },
   });
+};
+
+exports.getRelatedMovies = async (req, res) => {
+  const { movieId } = req.params;
+  if (!isValidObjectId(movieId)) return sendError(res, "Invalid movie id");
+
+  const movie = await Movie.findById(movieId);
+
+  const movies = await Movie.aggregate(
+    relatedMovieAggregation(movie.tags, movie._id)
+  );
+
+  const mapMovies = async (m) => {
+    const reviews = await getAverageRatings(m._id);
+
+    return {
+      id: m._id,
+      title: m.title,
+      poster: m.poster,
+      reviews: {
+        ...reviews,
+      },
+    };
+  };
+
+  const relatedMovies = await Promise.all(movies.map(mapMovies));
+
+  res.json({ relatedMovies });
+};
+
+exports.getTopRatedMovies = async (req, res) => {
+  const { type = "Film" } = req.query;
+
+  const movies = await Movie.aggregate(topRatedMoviesPipeline(type));
+
+  const mapMovies = async (m) => {
+    const reviews = await getAverageRatings(m._id);
+    return {
+      id: m._id,
+      title: m.title,
+      poster: m.poster,
+      reviews: { ...reviews },
+    };
+  };
+
+  const topRatedMovies = await Promise.all(movies.map(mapMovies));
+
+  res.json({ movies: topRatedMovies });
 };
