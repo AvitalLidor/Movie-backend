@@ -1,8 +1,12 @@
-const { sendError, formatActor } = require("../utils/helper");
+const {
+  sendError,
+  formatActor,
+  averageRatingPipeline,
+} = require("../utils/helper");
 const cloudinary = require("../cloud");
 const Movie = require("../models/movie");
-const { isValidObjectId } = require("mongoose");
-const movie = require("../models/movie");
+const Review = require("../models/reviews");
+const { isValidObjectId, default: mongoose } = require("mongoose");
 
 exports.uploadTrailer = async (req, res) => {
   const { file } = req;
@@ -366,5 +370,86 @@ exports.searchMovies = async (req, res) => {
         status: m.status,
       };
     }),
+  });
+};
+
+exports.getLatestUploads = async (req, res) => {
+  const { limit = 5 } = req.query;
+
+  const results = await Movie.find({ status: "public" })
+    .sort("-createdAt")
+    .limit(parseInt(limit));
+  const movies = results.map((m) => {
+    return {
+      id: m._id,
+      title: m.title,
+      storyLine: m.storyLine,
+      poster: m.poster?.url,
+      trailer: m.trailer?.url,
+    };
+  });
+  res.json({ movies });
+};
+
+exports.getSingleMovie = async (req, res) => {
+  const { movieId } = req.params;
+
+  if (!isValidObjectId(movieId)) return sendError(res, "Movie id is not valid");
+
+  const movie = await Movie.findById(movieId).populate(
+    "director writers cast.actor"
+  );
+
+  const reviews = await Review.aggregate(averageRatingPipeline(movie._id));
+
+  console.log(reviews);
+
+  const {
+    _id: id,
+    title,
+    storyLine,
+    cast,
+    writers,
+    director,
+    releaseDate,
+    genres,
+    tags,
+    language,
+    poster,
+    trailer,
+    type,
+  } = movie;
+
+  res.json({
+    movie: {
+      id,
+      title,
+      storyLine,
+      releaseDate,
+      genres,
+      tags,
+      language,
+      type,
+      poster: poster?.url,
+      trailer: trailer?.url,
+      cast: cast.map((c) => ({
+        id: c._id,
+        profile: {
+          id: c.actor._id,
+          name: c.actor.name,
+          avatar: c.actor?.avatar?.url,
+        },
+        leadActor: c.leadActor,
+        roleAs: c.roleAs,
+      })),
+      writers: writers.map((w) => ({
+        id: w._id,
+        name: w.name,
+      })),
+      director: {
+        id: director._id,
+        name: director.name,
+      },
+    },
   });
 };
