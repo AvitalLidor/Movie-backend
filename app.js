@@ -39,6 +39,8 @@ app.use(errorHandler);
 //   }
 // );
 
+const PORT = process.env.PORT || 8000;
+
 app.listen(8000, () => {
-  console.log("the port is listeing on port 8000");
+  console.log("the port is listeing on port " + PORT);
 });
