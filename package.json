@@ -4,7 +4,7 @@
   "description": "Movie Project",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "nodemon app.js"
   },
   "author": "Full stack Lidor",
   "license": "ISC",
@@ -24,9 +24,5 @@
   },
   "devDependencies": {
     "nodemon": "^2.0.20"
-  },
-  "engines": {
-    "node": "16.x",
-    "npm":"8.x"
   }
 }
