@@ -400,26 +400,12 @@ exports.getLatestUploads = async (req, res) => {
 exports.getSingleMovie = async (req, res) => {
   const { movieId } = req.params;
 
-  // mongoose.Types.ObjectId(movieId)
-
   if (!isValidObjectId(movieId))
     return sendError(res, "Movie id is not valid!");
 
   const movie = await Movie.findById(movieId).populate(
     "director writers cast.actor"
   );
-
-  // const [aggregatedResponse] = await Review.aggregate(
-  //   averageRatingPipeline(movie._id)
-  // );
-
-  // const reviews = {};
-
-  // if (aggregatedResponse) {
-  //   const { ratingAvg, reviewCount } = aggregatedResponse;
-  //   reviews.ratingAvg = parseFloat(ratingAvg).toFixed(1);
-  //   reviews.reviewCount = reviewCount;
-  // }
 
   const reviews = await getAverageRatings(movie._id);
 
